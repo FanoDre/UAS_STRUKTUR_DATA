@@ -4,7 +4,7 @@ from tkinter import *
 
 root = Tk()
 root.title("Array Record")
-root.geometry("1080x720")
+root.geometry("1420x376")
 my_tree = ttk.Treeview(root)
 
 # DB
@@ -17,47 +17,308 @@ config = {
     'raise_on_warnings':True
 }
 
+def reverse(tuples):
+    newTup = tuples[::-1]
+    return newTup
+
+def read():
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM tb_data")
+        result = cursor.fetchall()
+        conn.commit()
+    except Exception as e:
+        print(e)
+        conn.rollback()
+        conn.close()
+    return result
+
+# FUNCTION GET VALUE
+def getValue(event):
+    nimEntry.delete(0, END)
+    namaEntry.delete(0, END)
+    nilaiDisipEntry.delete(0, END)
+    nilaiEtikaEntry.delete(0, END)
+    nilaiEtosEntry.delete(0, END)
+    nilaiInovasiEntry.delete(0, END)
+    row_id = my_tree.selection()[0]
+    select = my_tree.set(row_id)
+    nimEntry.insert(0, select['NIM'])
+    namaEntry.insert(0, select['Nama'])
+    nilaiDisipEntry.insert(0, select['Disiplin'])
+    nilaiEtikaEntry.insert(0, select['Etika'])
+    nilaiEtosEntry.insert(0, select['Etos'])
+    nilaiInovasiEntry.insert(0, select['Inovasi'])
+
+# FUNCTION INSERT
+def insert(nim, nama, disip, etika, etos, inovasi, disip1, etika1, etos1, inovasi1, total, mutu, keterangan):
+    answer = messagebox.askokcancel("Question", "Insert this data?")
+    if answer:
+        try:
+            conn = mysql.connector.connect(**config)
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO tb_data VALUES ('" + str(nim) + "','" + str(nama) + "','" + str(disip) + "','" + str(disip1) + "','" + str(etika) + "','" + str(etika1) + "','" + str(etos) + "','" + str(etos1) + "','" + str(inovasi) + "','" + str(inovasi1) + "','" + str(total) + "','" + str(mutu) + "','" + str(keterangan) + "')")
+            messagebox.showinfo("information", "Data Inserted Successfully.")
+            conn.commit()
+            nimEntry.delete(0, END)
+            namaEntry.delete(0, END)
+            nilaiDisipEntry.delete(0, END)
+            nilaiEtikaEntry.delete(0, END)
+            nilaiEtosEntry.delete(0, END)
+            nilaiInovasiEntry.delete(0, END)
+        except Exception as e:
+            print(e)
+            conn.rollback()
+            conn.close()
+    else:
+        messagebox.showinfo("information", "Insert Cancelled.")
+
+def insert_data():
+    try:
+        nim = str(nimEntry.get())
+        nama = str(namaEntry.get())
+        disip = int(nilaiDisipEntry.get())
+        etika = int(nilaiEtikaEntry.get())
+        etos = int(nilaiEtosEntry.get())
+        inovasi = int(nilaiInovasiEntry.get())
+        
+        disip1 = disip * 0.25
+        etika1 = etika * 0.25
+        etos1 = etos * 0.25
+        inovasi1 = inovasi * 0.25
+        total = disip1 + etika1 + etos1 + inovasi1
+        if total >= 90:
+            mutu = "A"
+            keterangan = "LULUS"
+        elif total >= 75 and total < 90:
+            mutu = "B"
+            keterangan = "LULUS"
+        elif total >= 60 and total < 75:
+            mutu = "C"
+            keterangan = "LULUS"
+        elif total >= 50 and total < 60:
+            mutu = "D"
+            keterangan = "TIDAK LULUS"
+        else:
+            mutu = "E"
+            keterangan = "TIDAK LULUS"
+        insert(int(nim), str(nama), int(disip), int(etika), int(etos), int(inovasi), int(disip1), int(etika1), int(etos1), int(inovasi1), str(total), str(mutu), str(keterangan))
+        for data in my_tree.get_children():
+            my_tree.delete(data)
+
+        for result in reverse(read()):
+            my_tree.insert(parent="", index="end", iid=result, text="", values=(result), tag="orow")
+
+        my_tree.tag_configure('orow', font=('Arial Bold', 15))
+        my_tree.place(x=12, y=150)
+    except Exception as e:
+        if nim == "" or nim == " ":
+            messagebox.showinfo("information", "NIM can't be empty.")
+        elif nama == "" or nama == " ":
+            messagebox.showinfo("information", "Nama can't be empty.")
+        else:
+            print(e)
+    
+
+# FUNCTION DELETE
+def delete(data):
+    answer = messagebox.askokcancel("Question","Delete this data?")
+    if answer:
+        try:
+            conn = mysql.connector.connect(**config)
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM tb_data WHERE nim = '" + str(data) + "'")
+            conn.commit()
+            messagebox.showinfo("Information","Data Deleted Successfully")
+        except Exception as e:
+            print(e)
+            conn.rollback()
+            conn.close()
+    else:
+        messagebox.showinfo("information", "Delete Cancelled.")
+
+def delete_data():
+    selected_item = my_tree.selection()[0]
+    deleteData = str(my_tree.item(selected_item)['values'][0])
+    delete(deleteData)
+
+    for data in my_tree.get_children():
+        my_tree.delete(data)
+
+    for result in reverse(read()):
+        my_tree.insert(parent="", index="end", iid=result, text="", values=(result), tag="orow")
+
+    my_tree.tag_configure('orow', font=('Arial Bold', 15))
+    my_tree.place(x=12, y=150)
+
+# FUNCTION UPDATE
+def update(nim, nama, disip, etika, etos, inovasi, disip1, etika1, etos1, inovasi1, total, mutu, keterangan, idNim):
+    answer = messagebox.askokcancel("question", "Update this data?")
+    if answer:
+        try:
+            conn = mysql.connector.connect(**config)
+            cursor = conn.cursor()
+            cursor.execute("UPDATE tb_data SET nim = '" + str(nim) + "', nama = '" + str(nama) + "', nilai_disiplin = '" + str(disip) + "', nilai_etika = '" + str(etika) + "', nilai_etos = '" + str(etos) + "', nilai_inovasi = '" + str(inovasi) + "', total_disiplin = '" + str(disip1) + "', total_etika = '" + str(etika1) + "', total_etos = '" + str(etos1) + "', total_inovasi = '" + str(inovasi1) + "', total = '" + str(total) + "', mutu = '" + str(mutu) + "', keterangan = '" + str(keterangan) + "'  WHERE nim = '" + str(idNim) + "'")
+            conn.commit()
+            messagebox.showinfo("information", "Data Updated Successfully.")
+            nimEntry.delete(0, END)
+            namaEntry.delete(0, END)
+            nilaiDisipEntry.delete(0, END)
+            nilaiEtikaEntry.delete(0, END)
+            nilaiEtosEntry.delete(0, END)
+            nilaiInovasiEntry.delete(0, END)
+        except Exception as e:
+            print(e)
+            conn.rollback()
+            conn.close()
+    else:
+        messagebox.showinfo("information","Update Cancelled.")
+
+def update_data():
+    try:
+        selected_item = my_tree.selection()[0]
+        updateNim = my_tree.item(selected_item)['values'][0]
+        disip = int(nilaiDisipEntry.get())
+        etika = int(nilaiEtikaEntry.get())
+        etos = int(nilaiEtosEntry.get())
+        inovasi = int(nilaiInovasiEntry.get())
+        disip1 = disip * 0.25
+        etika1 = etika * 0.25
+        etos1 = etos * 0.25
+        inovasi1 = inovasi * 0.25
+        total = disip1 + etika1 + etos1 + inovasi1
+        if total >= 90:
+            mutu = "A"
+            keterangan = "LULUS"
+        elif total >= 75 and total < 90:
+            mutu = "B"
+            keterangan = "LULUS"
+        elif total >= 60 and total < 75:
+            mutu = "C"
+            keterangan = "LULUS"
+        elif total >= 50 and total < 60:
+            mutu = "D"
+            keterangan = "TIDAK LULUS"
+        else:
+            mutu = "E"
+            keterangan = "TIDAK LULUS"
+
+        update(nimEntry.get(), namaEntry.get(), int(disip), int(etika), int(etos), int(inovasi), int(disip1), int(etika1), int(etos1), int(inovasi1), str(total), str(mutu), str(keterangan), updateNim)
+
+        for data in my_tree.get_children():
+            my_tree.delete(data)
+
+        for result in reverse(read()):
+            my_tree.insert(parent='', index='end', iid=result, text="", values=(result), tag='orow')
+
+        my_tree.tag_configure('orow', font=('Arial Bold', 15))
+        my_tree.place(x=12, y=150)
+    except Exception as e:
+        print(e)
+
+
 # GUI
 nimLabel = Label(root, text="NIM", font=('Arial', 15))
 namaLabel = Label(root, text="Nama", font=('Arial', 15))
 nimLabel.grid(row=1, column=0, padx=10, pady=10)
 namaLabel.grid(row=2, column=0, padx=10, pady=10)
-
-nilaiDisipLabel = Label(root, text="Nilai Disiplin (25%)", font=('Arial', 15))
-nilaiEtikaLabel = Label(root, text="Nilai Etika (25%)", font=('Arial', 15))
-nilaiDisipLabel.grid(row=3, column=0, padx=10, pady=10)
-nilaiEtikaLabel.grid(row=4, column=0, padx=10, pady=10)
-
-nilaiEtosLabel = Label(root, text="Nilai Etos (25%)", font=('Arial', 15))
-nilaiInovasiLabel = Label(root, text="Nilai Inovasi (25%)", font=('Arial', 15))
-nilaiEtosLabel.grid(row=5, column=0, padx=10, pady=10)
-nilaiInovasiLabel.grid(row=6, column=0, padx=10, pady=10)
-
 nimEntry = Entry(root, font=('Arial', 15), width=15)
 namaEntry = Entry(root, font=('Arial', 15), width=15)
 nimEntry.grid(row=1, column=1)
 namaEntry.grid(row=2, column=1)
 
+nilaiDisipLabel = Label(root, text="Nilai Disiplin (25%)", font=('Arial', 15))
+nilaiEtikaLabel = Label(root, text="Nilai Etika (25%)", font=('Arial', 15))
+nilaiDisipLabel.grid(row=1, column=2, padx=10, pady=10)
+nilaiEtikaLabel.grid(row=2, column=2, padx=10, pady=10)
 nilaiDisipEntry = Entry(root, font=('Arial', 15), width=15)
 nilaiEtikaEntry = Entry(root, font=('Arial', 15), width=15)
-nilaiDisipEntry.grid(row=3, column=1)
-nilaiEtikaEntry.grid(row=4, column=1)
+nilaiDisipEntry.grid(row=1, column=3)
+nilaiEtikaEntry.grid(row=2, column=3)
 
+nilaiEtosLabel = Label(root, text="Nilai Etos (25%)", font=('Arial', 15))
+nilaiInovasiLabel = Label(root, text="Nilai Inovasi (25%)", font=('Arial', 15))
+nilaiEtosLabel.grid(row=1, column=4, padx=10, pady=10)
+nilaiInovasiLabel.grid(row=2, column=4, padx=10, pady=10)
 nilaiEtosEntry = Entry(root, font=('Arial', 15), width=15)
 nilaiInovasiEntry = Entry(root, font=('Arial', 15), width=15)
-nilaiEtosEntry.grid(row=5, column=1)
-nilaiInovasiEntry.grid(row=6, column=1)
+nilaiEtosEntry.grid(row=1, column=5)
+nilaiInovasiEntry.grid(row=2, column=5)
 
-buttonSimpan = Button(root, text="Simpan", font=('Arial', 15), width=10, height=2)
+# nilaiDisip2Label = Label(root, text="Nilai Disiplin (25%)", font=('Arial', 15))
+# nilaiDisip2Entry = Entry(root, font=('Arial', 15), width=15)
+# nilaiDisip2Label.grid(row=3, column=2)
+# nilaiDisip2Entry.grid(row=3, column=3)
+
+# nilaiEtika2Label = Label(root, text="Nilai Etika (25%)", font=('Arial', 15))
+# nilaiEtika2Entry = Entry(root, font=('Arial', 15), width=15)
+# nilaiEtika2Label.grid(row=4, column=2)
+# nilaiEtika2Entry.grid(row=4, column=3)
+
+# nilaiEtos2Label = Label(root, text="Nilai Etos (25%)", font=('Arial', 15))
+# nilaiEtos2Entry = Entry(root, font=('Arial', 15), width=15)
+# nilaiEtos2Label.grid(row=5, column=2)
+# nilaiEtos2Entry.grid(row=5, column=3)
+
+# nilaiInovasi2Label = Label(root, text="Nilai Inovasi (25%)", font=('Arial', 15))
+# nilaiInovasi2Entry = Entry(root, font=('Arial', 15), width=15)
+# nilaiInovasi2Label.grid(row=6, column=2)
+# nilaiInovasi2Entry.grid(row=6, column=3)
+
+buttonSimpan = Button(root, text="Simpan", font=('Arial', 15), width=10, height=2, command=insert_data)
 buttonSimpan.grid(row=7, column=0, padx=10, pady=10)
 
-buttonHapus = Button(root, text="Hapus", font=('Arial', 15), width=10, height=2)
+buttonHapus = Button(root, text="Hapus", font=('Arial', 15), width=10, height=2, command=delete_data)
 buttonHapus.grid(row=7, column=1, padx=10, pady=10)
 
-buttonEdit = Button(root, text="Edit", font=('Arial', 15), width=10, height=2)
+buttonEdit = Button(root, text="Edit", font=('Arial', 15), width=10, height=2, command=update_data)
 buttonEdit.grid(row=7, column=2, padx=10, pady=10)
 
-buttonTutup = Button(root, text="Tutup", font=('Arial', 15), width=10, height=2)
+buttonTutup = Button(root, text="Tutup", font=('Arial', 15), width=10, height=2, command=root.destroy)
 buttonTutup.grid(row=7, column=3, padx=10, pady=10)
+
+style = ttk.Style()
+style.configure("Treeview.Heading", font=('Arial Bold', 15))
+
+my_tree["columns"] = ("NIM", "Nama", "Disiplin", "Disiplin1", "Etika", "Etika1", "Etos", "Etos1", "Inovasi", "Inovasi1", "Total", "Mutu", "Keterangan")
+my_tree.column("#0", width=0, stretch=NO)
+my_tree.column("NIM", anchor=W, width=100)
+my_tree.column("Nama", anchor=W, width=150)
+my_tree.column("Disiplin", anchor=W, width=100)
+my_tree.column("Disiplin1", anchor=W, width=120)
+my_tree.column("Etika", anchor=W, width=100)
+my_tree.column("Etika1", anchor=W, width=120)
+my_tree.column("Etos", anchor=W, width=100)
+my_tree.column("Etos1", anchor=W, width=120)
+my_tree.column("Inovasi", anchor=W, width=100)
+my_tree.column("Inovasi1", anchor=W, width=120)
+my_tree.column("Total", anchor=W, width=70)
+my_tree.column("Mutu", anchor=W, width=70)
+my_tree.column("Keterangan", anchor=W, width=120)
+
+my_tree.heading("NIM", text="NIM")
+my_tree.heading("Nama", text="Nama")
+my_tree.heading("Disiplin", text="Disiplin")
+my_tree.heading("Disiplin1", text="Disiplin (25%)")
+my_tree.heading("Etika", text="Etika Kerja")
+my_tree.heading("Etika1", text="Etika (25%)")
+my_tree.heading("Etos", text="Etos")
+my_tree.heading("Etos1", text="Etos (25%)")
+my_tree.heading("Inovasi", text="Inovasi")
+my_tree.heading("Inovasi1", text="Inovasi (25%)")
+my_tree.heading("Total", text="Total")
+my_tree.heading("Mutu", text="Mutu")
+my_tree.heading("Keterangan", text="Keterangan")
+
+for data in my_tree.get_children():
+    my_tree.delete(data)
+
+for result in reverse(read()):
+    my_tree.insert(parent='', index='end', iid=result, text="", values=(result), tag='orow')
+
+my_tree.tag_configure('orow', font=('Arial Bold', 15))
+my_tree.place(x=12, y=150)
+my_tree.bind("<Double-Button-1>", getValue)
 
 root.mainloop()
