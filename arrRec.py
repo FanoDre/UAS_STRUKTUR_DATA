@@ -119,7 +119,6 @@ def insert_data():
             messagebox.showinfo("information", "Nama can't be empty.")
         else:
             print(e)
-    
 
 # FUNCTION DELETE
 def delete(data):
@@ -179,6 +178,8 @@ def update_data():
     try:
         selected_item = my_tree.selection()[0]
         updateNim = my_tree.item(selected_item)['values'][0]
+        nim = str(nimEntry.get())
+        nama = str(namaEntry.get())
         disip = int(nilaiDisipEntry.get())
         etika = int(nilaiEtikaEntry.get())
         etos = int(nilaiEtosEntry.get())
@@ -204,7 +205,7 @@ def update_data():
             mutu = "E"
             keterangan = "TIDAK LULUS"
 
-        update(nimEntry.get(), namaEntry.get(), int(disip), int(etika), int(etos), int(inovasi), int(disip1), int(etika1), int(etos1), int(inovasi1), str(total), str(mutu), str(keterangan), updateNim)
+        update(str(nim), str(nama), int(disip), int(etika), int(etos), int(inovasi), int(disip1), int(etika1), int(etos1), int(inovasi1), str(total), str(mutu), str(keterangan), updateNim)
 
         for data in my_tree.get_children():
             my_tree.delete(data)
@@ -216,7 +217,6 @@ def update_data():
         my_tree.place(x=12, y=150)
     except Exception as e:
         print(e)
-
 
 # GUI
 nimLabel = Label(root, text="NIM", font=('Arial', 15))
