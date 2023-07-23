@@ -246,26 +246,6 @@ nilaiInovasiEntry = Entry(root, font=('Arial', 15), width=15)
 nilaiEtosEntry.grid(row=1, column=5)
 nilaiInovasiEntry.grid(row=2, column=5)
 
-# nilaiDisip2Label = Label(root, text="Nilai Disiplin (25%)", font=('Arial', 15))
-# nilaiDisip2Entry = Entry(root, font=('Arial', 15), width=15)
-# nilaiDisip2Label.grid(row=3, column=2)
-# nilaiDisip2Entry.grid(row=3, column=3)
-
-# nilaiEtika2Label = Label(root, text="Nilai Etika (25%)", font=('Arial', 15))
-# nilaiEtika2Entry = Entry(root, font=('Arial', 15), width=15)
-# nilaiEtika2Label.grid(row=4, column=2)
-# nilaiEtika2Entry.grid(row=4, column=3)
-
-# nilaiEtos2Label = Label(root, text="Nilai Etos (25%)", font=('Arial', 15))
-# nilaiEtos2Entry = Entry(root, font=('Arial', 15), width=15)
-# nilaiEtos2Label.grid(row=5, column=2)
-# nilaiEtos2Entry.grid(row=5, column=3)
-
-# nilaiInovasi2Label = Label(root, text="Nilai Inovasi (25%)", font=('Arial', 15))
-# nilaiInovasi2Entry = Entry(root, font=('Arial', 15), width=15)
-# nilaiInovasi2Label.grid(row=6, column=2)
-# nilaiInovasi2Entry.grid(row=6, column=3)
-
 buttonSimpan = Button(root, text="Simpan", font=('Arial', 15), width=10, height=2, command=insert_data)
 buttonSimpan.grid(row=7, column=0, padx=10, pady=10)
 
