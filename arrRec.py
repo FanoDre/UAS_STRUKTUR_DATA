@@ -53,26 +53,53 @@ def getValue(event):
 
 # FUNCTION INSERT
 def insert(nim, nama, disip, etika, etos, inovasi, disip1, etika1, etos1, inovasi1, total, mutu, keterangan):
-    answer = messagebox.askokcancel("Question", "Insert this data?")
-    if answer:
-        try:
-            conn = mysql.connector.connect(**config)
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO tb_data VALUES ('" + str(nim) + "','" + str(nama) + "','" + str(disip) + "','" + str(disip1) + "','" + str(etika) + "','" + str(etika1) + "','" + str(etos) + "','" + str(etos1) + "','" + str(inovasi) + "','" + str(inovasi1) + "','" + str(total) + "','" + str(mutu) + "','" + str(keterangan) + "')")
-            messagebox.showinfo("information", "Data Inserted Successfully.")
-            conn.commit()
+    if len(nimEntry.get()) < 5:
+        messagebox.showinfo("information", "NIM is too short.")
+        nimEntry.focus_set()
+    elif len(namaEntry.get()) < 5:
+        messagebox.showinfo("information", "Nama is too short.")
+        namaEntry.focus_set()
+    elif len(nilaiDisipEntry.get()) <= 1:
+        messagebox.showinfo("information", "Input Nilai Disipilin from 10 to 100.")
+        nilaiDisipEntry.focus_set()
+    elif len(nilaiEtikaEntry.get()) <= 1:
+        messagebox.showinfo("information", "Input Nilai Etika from 10 to 100.")
+        nilaiEtikaEntry.focus_set()
+    elif len(nilaiEtosEntry.get()) <= 1:
+        messagebox.showinfo("information", "Input Nilai Etos from 10 to 100.")
+        nilaiEtosEntry.focus_set()
+    elif len(nilaiInovasiEntry.get()) <= 1:
+        messagebox.showinfo("information", "Input Nilai Inovasi from 10 to 100.")
+        nilaiInovasiEntry.focus_set()
+    else:
+        answer = messagebox.askokcancel("Question", "Insert this data?")
+        if answer:
+            try:
+                conn = mysql.connector.connect(**config)
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO tb_data VALUES ('" + str(nim) + "','" + str(nama) + "','" + str(disip) + "','" + str(etika) + "','" + str(etos) + "','" + str(inovasi) + "','" + str(disip1) + "','" + str(etika1) + "','" + str(etos1) + "','" + str(inovasi1) + "','" + str(total) + "','" + str(mutu) + "','" + str(keterangan) + "')")
+                messagebox.showinfo("information", "Data Inserted Successfully.")
+                conn.commit()
+                nimEntry.delete(0, END)
+                namaEntry.delete(0, END)
+                nilaiDisipEntry.delete(0, END)
+                nilaiEtikaEntry.delete(0, END)
+                nilaiEtosEntry.delete(0, END)
+                nilaiInovasiEntry.delete(0, END)
+                nimEntry.focus_set()
+            except Exception as e:
+                print(e)
+                conn.rollback()
+                conn.close()
+        else:
+            messagebox.showinfo("information", "Insert Cancelled.")
             nimEntry.delete(0, END)
             namaEntry.delete(0, END)
             nilaiDisipEntry.delete(0, END)
             nilaiEtikaEntry.delete(0, END)
             nilaiEtosEntry.delete(0, END)
             nilaiInovasiEntry.delete(0, END)
-        except Exception as e:
-            print(e)
-            conn.rollback()
-            conn.close()
-    else:
-        messagebox.showinfo("information", "Insert Cancelled.")
+            nimEntry.focus_set()
 
 def insert_data():
     try:
@@ -103,7 +130,8 @@ def insert_data():
         else:
             mutu = "E"
             keterangan = "TIDAK LULUS"
-        insert(int(nim), str(nama), int(disip), int(etika), int(etos), int(inovasi), int(disip1), int(etika1), int(etos1), int(inovasi1), str(total), str(mutu), str(keterangan))
+        insert(int(nim), str(nama), float(disip), float(disip1), float(etika), float(etika1), float(etos), float(etos1), float(inovasi), float(inovasi1), float(total), str(mutu), str(keterangan))
+
         for data in my_tree.get_children():
             my_tree.delete(data)
 
@@ -115,8 +143,10 @@ def insert_data():
     except Exception as e:
         if nim == "" or nim == " ":
             messagebox.showinfo("information", "NIM can't be empty.")
+            nimEntry.focus_set()
         elif nama == "" or nama == " ":
             messagebox.showinfo("information", "Nama can't be empty.")
+            namaEntry.focus_set()
         else:
             print(e)
 
@@ -158,7 +188,7 @@ def update(nim, nama, disip, etika, etos, inovasi, disip1, etika1, etos1, inovas
         try:
             conn = mysql.connector.connect(**config)
             cursor = conn.cursor()
-            cursor.execute("UPDATE tb_data SET nim = '" + str(nim) + "', nama = '" + str(nama) + "', nilai_disiplin = '" + str(disip) + "', nilai_etika = '" + str(etika) + "', nilai_etos = '" + str(etos) + "', nilai_inovasi = '" + str(inovasi) + "', total_disiplin = '" + str(disip1) + "', total_etika = '" + str(etika1) + "', total_etos = '" + str(etos1) + "', total_inovasi = '" + str(inovasi1) + "', total = '" + str(total) + "', mutu = '" + str(mutu) + "', keterangan = '" + str(keterangan) + "'  WHERE nim = '" + str(idNim) + "'")
+            cursor.execute("UPDATE tb_data SET nim = '" + str(nim) + "', nama = '" + str(nama) + "', nilai_disiplin = '" + str(disip) + "', total_disiplin = '" + str(disip1) + "', nilai_etika = '" + str(etika) + "', total_etika = '" + str(etika1) + "', nilai_etos = '" + str(etos) + "', total_etos = '" + str(etos1) + "', nilai_inovasi = '" + str(inovasi) + "', total_inovasi = '" + str(inovasi1) + "', total = '" + str(total) + "', mutu = '" + str(mutu) + "', keterangan = '" + str(keterangan) + "' WHERE nim = '" + str(idNim) + "'")
             conn.commit()
             messagebox.showinfo("information", "Data Updated Successfully.")
             nimEntry.delete(0, END)
@@ -263,19 +293,19 @@ style.configure("Treeview.Heading", font=('Arial Bold', 15))
 
 my_tree["columns"] = ("NIM", "Nama", "Disiplin", "Disiplin1", "Etika", "Etika1", "Etos", "Etos1", "Inovasi", "Inovasi1", "Total", "Mutu", "Keterangan")
 my_tree.column("#0", width=0, stretch=NO)
-my_tree.column("NIM", anchor=W, width=100)
-my_tree.column("Nama", anchor=W, width=150)
-my_tree.column("Disiplin", anchor=W, width=100)
-my_tree.column("Disiplin1", anchor=W, width=120)
-my_tree.column("Etika", anchor=W, width=100)
-my_tree.column("Etika1", anchor=W, width=120)
-my_tree.column("Etos", anchor=W, width=100)
-my_tree.column("Etos1", anchor=W, width=120)
-my_tree.column("Inovasi", anchor=W, width=100)
-my_tree.column("Inovasi1", anchor=W, width=120)
-my_tree.column("Total", anchor=W, width=70)
-my_tree.column("Mutu", anchor=W, width=70)
-my_tree.column("Keterangan", anchor=W, width=120)
+my_tree.column("NIM", anchor=N, width=100)
+my_tree.column("Nama", anchor=N, width=150)
+my_tree.column("Disiplin", anchor=N, width=100)
+my_tree.column("Disiplin1", anchor=N, width=120)
+my_tree.column("Etika", anchor=N, width=100)
+my_tree.column("Etika1", anchor=N, width=120)
+my_tree.column("Etos", anchor=N, width=100)
+my_tree.column("Etos1", anchor=N, width=120)
+my_tree.column("Inovasi", anchor=N, width=100)
+my_tree.column("Inovasi1", anchor=N, width=120)
+my_tree.column("Total", anchor=N, width=70)
+my_tree.column("Mutu", anchor=N, width=70)
+my_tree.column("Keterangan", anchor=N, width=120)
 
 my_tree.heading("NIM", text="NIM")
 my_tree.heading("Nama", text="Nama")
