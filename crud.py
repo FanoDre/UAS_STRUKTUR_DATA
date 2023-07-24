@@ -4,7 +4,7 @@ import mysql.connector
 
 root = Tk()
 root.title("CRUD APP")
-root.geometry("530x400")
+root.geometry("830x400")
 my_tree = ttk.Treeview(root)
 
 config = {
@@ -17,7 +17,6 @@ config = {
 }
 
 # FUNCTION 
-
 def reverse(tuples):
     newTup = tuples[::-1]
     return newTup
@@ -49,39 +48,50 @@ def getValue(event):
 
 # FUNCTION INSERT QUERY
 def insert(nik, nama, alamat):
-    answer = messagebox.askokcancel("question", "Insert this data?")
-    if answer:
-        try:
-            conn = mysql.connector.connect(**config)
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO tb_data VALUES ('" + str(nik) + "','" + str(nama) + "', '" + str(alamat) + "')")
-            conn.commit()
-            messagebox.showinfo("information", "Data Inserted Successfully.")
-            nikEntry.delete(0, END)
-            namaEntry.delete(0, END)
-            alamatEntry.delete(0, END)
-            nikEntry.focus_set()
-        except Exception as e:
-            print(e)
-            conn.rollback()
-            conn.close()
-    else:
-        messagebox.showinfo("information", "Insert Data Cancelled.")
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO tb_data VALUES ('" + str(nik) + "','" + str(nama) + "', '" + str(alamat) + "')")
+        conn.commit()
+        messagebox.showinfo("information", "Data Inserted Successfully.")
+        nikEntry.delete(0, END)
+        namaEntry.delete(0, END)
+        alamatEntry.delete(0, END)
+        nikEntry.focus_set()
+    except Exception as e:
+        print(e)
+        conn.rollback()
+        conn.close()
 
 # FUNCTION INSERT
 def insert_data():
-    nik = str(nikEntry.get())
-    nama = str(namaEntry.get())
-    alamat = str(alamatEntry.get())
-
-    if nik == "" or nik == " ":
-        messagebox.showinfo("information", "NIK can't be empty.")
-    elif nama == "" or nama == " ":
-        messagebox.showinfo("information", "Nama can't be empty.")
-    elif alamat == "" or alamat == " ":
-        messagebox.showinfo("information", "Alamat can't be empty.")
+    if len(nikEntry.get()) <= 5:
+        messagebox.showinfo("information", "NIK is too short.")
+        nikEntry.focus_set()
+    elif nikEntry.get().isdigit() == False:
+        messagebox.showinfo("information", "NIK must be a number.")
+        nikEntry.focus_set()
+    elif len(namaEntry.get()) <= 1:
+        messagebox.showinfo("information", "Nama is too short.")
+        namaEntry.focus_set()
+    elif namaEntry.get().isdigit() == True:
+        messagebox.showinfo("information", "Nama must be Alphabetical.")
+        namaEntry.focus_set()
+    elif len(alamatEntry.get()) <= 1:
+        messagebox.showinfo("information", "Alamat is too short.")
+        alamatEntry.focus_set()
+    elif alamatEntry.get().isdigit() == True:
+        messagebox.showinfo("information", "Alamat must be Alphabetical.")
+        alamatEntry.focus_set()
     else:
-        insert(str(nik), str(nama), str(alamat))
+        answer = messagebox.askokcancel("question", "Insert this data?")
+        if answer:
+            nik = str(nikEntry.get())
+            nama = str(namaEntry.get())
+            alamat = str(alamatEntry.get())
+            insert(str(nik), str(nama), str(alamat))
+        else:
+            messagebox.showinfo("information", "Insert Data Cancelled.")
     
     for data in my_tree.get_children():
         my_tree.delete(data)
@@ -94,30 +104,30 @@ def insert_data():
 
 # FUNCTION DELETE QUERY
 def delete(data):
-    answer = messagebox.askokcancel("question", "Delete this data?")
-    if answer:
-        try:
-            conn = mysql.connector.connect(**config)
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM tb_data WHERE nik = '" + str(data) + "'")
-            conn.commit()
-            messagebox.showinfo("information", "Data Deleted Successfully.")
-            nikEntry.delete(0, END)
-            namaEntry.delete(0, END)
-            alamatEntry.delete(0, END)
-            nikEntry.focus_set()
-        except Exception as e:
-            print(e)
-            conn.rollback()
-            conn.close()
-    else:
-        messagebox.showinfo("information", "Delete Data Cancelled.")
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM tb_data WHERE nik = '" + str(data) + "'")
+        conn.commit()
+        messagebox.showinfo("information", "Data Deleted Successfully.")
+        nikEntry.delete(0, END)
+        namaEntry.delete(0, END)
+        alamatEntry.delete(0, END)
+        nikEntry.focus_set()
+    except Exception as e:
+        print(e)
+        conn.rollback()
+        conn.close()
 
 # FUNCTION DELETE
 def delete_data():
     selectedItem = my_tree.selection()[0]
     deleteData = str(my_tree.item(selectedItem)['values'][0])
-    delete(deleteData)
+    answer = messagebox.askokcancel("question", "Delete this data?")
+    if answer:
+        delete(deleteData)
+    else:
+        messagebox.showinfo("information", "Delete Data Cancelled.")
 
     for data in my_tree.get_children():
         my_tree.delete(data)
@@ -130,40 +140,53 @@ def delete_data():
 
 # FUNCTION UPDATE QUERY
 def update(nik, nama, alamat, idNik):
-    answer = messagebox.askokcancel("question", "Update this data?")
-    if answer:
-        try:
-            conn = mysql.connector.connect(**config)
-            cursor = conn.cursor()
-            cursor.execute("UPDATE tb_data SET nik = '" + str(nik) + "', nama = '" + str(nama) + "', alamat = '" + str(alamat) + "' WHERE nik = '" + str(idNik) + "'")
-            conn.commit()
-            messagebox.showinfo("information", "Data Updated Successfully.")
-            nikEntry.delete(0, END)
-            namaEntry.delete(0, END)
-            alamatEntry.delete(0, END)
-            nikEntry.focus_set()
-        except Exception as e:
-            print(e)
-            conn.rollback()
-            conn.close()
-    else:
-        messagebox.showinfo("information", "Update Data Cancelled.")
+    try:
+        conn = mysql.connector.connect(**config)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE tb_data SET nik = '" + str(nik) + "', nama = '" + str(nama) + "', alamat = '" + str(alamat) + "' WHERE nik = '" + str(idNik) + "'")
+        conn.commit()
+        messagebox.showinfo("information", "Data Updated Successfully.")
+        nikEntry.delete(0, END)
+        namaEntry.delete(0, END)
+        alamatEntry.delete(0, END)
+        nikEntry.focus_set()
+    except Exception as e:
+        print(e)
+        conn.rollback()
+        conn.close()
 
 # FUNCTION UPDATE
 def update_data():
     selectedItem = my_tree.selection()[0]
     updateData = my_tree.item(selectedItem)['values'][0]
-    nik = str(nikEntry.get())
-    nama = str(namaEntry.get())
-    alamat = str(alamatEntry.get())
-    if nik == "" or nik == " ":
-        messagebox.showinfo("information", "NIK can't be empty.")
-    elif nama == "" or nama == " ":
-        messagebox.showinfo("information", "Nama can't be empty.")
-    elif alamat == "" or alamat == " ":
-        messagebox.showinfo("information", "Alamat can't be empty.")
+
+    if len(nikEntry.get()) <= 5:
+        messagebox.showinfo("information", "NIK is too short.")
+        nikEntry.focus_set()
+    elif nikEntry.get().isdigit() == False:
+        messagebox.showinfo("information", "NIK must be a number.")
+        nikEntry.focus_set()
+    elif len(namaEntry.get()) <= 1:
+        messagebox.showinfo("information", "Nama is too short.")
+        namaEntry.focus_set()
+    elif namaEntry.get().isdigit() == True:
+        messagebox.showinfo("information", "Nama must be Alphabetical.")
+        namaEntry.focus_set()
+    elif len(alamatEntry.get()) <= 1:
+        messagebox.showinfo("information", "Alamat is too short.")
+        alamatEntry.focus_set()
+    elif alamatEntry.get().isdigit() == True:
+        messagebox.showinfo("information", "Alamat must be Alphabetical.")
+        alamatEntry.focus_set()
     else:
-        update(nik, nama, alamat, updateData)
+        answer = messagebox.askokcancel("question", "Update this data?")
+        if answer:
+            nik = str(nikEntry.get())
+            nama = str(namaEntry.get())
+            alamat = str(alamatEntry.get())
+            update(nik, nama, alamat, updateData)
+        else:
+            messagebox.showinfo("information", "Update Data Cancelled.")
 
     for data in my_tree.get_children():
         my_tree.delete(data)
@@ -173,7 +196,6 @@ def update_data():
 
     my_tree.tag_configure('orow', font=('Arial Bold', 15))
     my_tree.place(x=12, y=180)
-
 
 # GUI
 nikLabel = Label(root,text="NIK", font=('Arial', 15), anchor=W, justify=LEFT)
@@ -202,10 +224,10 @@ btnTutup.place(x=250, y=125)
 style = ttk.Style()
 style.configure("Treeview.Heading", font=('Arial Bold', 15))
 my_tree["columns"] = ("NIK", "Nama", "Alamat")
-my_tree.column("#0", width=0, stretch=YES)
-my_tree.column("NIK", anchor=W, width=150)
-my_tree.column("Nama", anchor=W, width=150)
-my_tree.column("Alamat", anchor=W, width=200)
+my_tree.column("#0", width=0, stretch=NO)
+my_tree.column("NIK", anchor=N, width=200)
+my_tree.column("Nama", anchor=N, width=200)
+my_tree.column("Alamat", anchor=N, width=400)
 
 my_tree.heading("NIK", text="NIK")
 my_tree.heading("Nama", text="Nama Lengkap")
@@ -220,6 +242,5 @@ for result in reverse(read()):
 my_tree.tag_configure('orow', font=('Arial Bold', 15))
 my_tree.place(x=12, y=180)
 my_tree.bind("<Double-Button-1>", getValue)
-
 
 root.mainloop()
